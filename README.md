@@ -1,4 +1,5 @@
-# visio <img src="share/icon.svg" width="30">
+# visio
+<img src="share/icon.svg" width="60">
 
 visio means vision, used to vision image processing visualization. These image must be shooted by Intel realsense camera.
 
