@@ -12,3 +12,6 @@ SERIAL:
   open: true
   dev: "/dev/ttyS0"
   baud_rate: 115200
+MODEL:
+  x_ratio: 0.59
+  y_ratio: 0.59
