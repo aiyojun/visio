@@ -1,0 +1,14 @@
+WINDOW:
+  min_width: 810
+  min_height: 678
+  font_color: "#000000"
+  back_color: "#3e4145"
+CAMERA:
+  interval: 1000
+  max_depth: 2
+  lower_green: [35, 43, 15]
+  upper_green: [77, 255, 255]
+SERIAL:
+  open: true
+  dev: "/dev/ttyS0"
+  baud_rate: 115200
