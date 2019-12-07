@@ -110,8 +110,8 @@ cv::Point3f ImageProcessor::pix2point(const cv::Point& p, const struct rs2_intri
 
     rs2_deproject_pixel_to_point(point, intr, pixel, depth.get_distance(p.x, p.y));
     auto cfg = YamlUtil::getYamlFile();
-    return {point[0] * 1000 * cfg["MODEL"]["x_ratio"].as<int>(),
-            point[1] * 1000 * cfg["MODEL"]["y_ratio"].as<int>(), point[2] * 1000};
+    return {point[0] * 1000 * cfg["MODEL"]["x_ratio"].as<float>(),
+            point[1] * 1000 * cfg["MODEL"]["y_ratio"].as<float>(), point[2] * 1000};
 }
 
 cv::Mat ImageProcessor::depth0proc(const cv::Mat &depth) {
