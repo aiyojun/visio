@@ -30,6 +30,7 @@ struct PointsGroup {
     size_t lpkgs = 0;
     size_t ipkgs;
     float height;
+    int heightp = 0;
     std::vector<cv::Point3f> gp;
 };
 

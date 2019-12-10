@@ -75,32 +75,47 @@ void ImageProcessor::calculate(const cv::Rect &rect, const struct rs2_intrinsics
     LOG(INFO) << "  vertex  bottom-left depth (mm) : " << pix2point(pp3, intr, depth).z;
     LOG(INFO) << "  vertex bottom-right depth (mm) : " << pix2point(pp4, intr, depth).z;
     LOG(INFO) << "-------------------------------";
-    size_t index = 0;
-    for (int j = 0; j < county; j++) {
-        index++; int ipkg = 0;
+    size_t index = 1;
+    for (int j = 0; j <= county; j++) {
+        bool hasLineData = false;
+        int ipkg = 0;
         std::vector<cv::Point3f> pv;
-        int delta_pix_y = j * pix_per_mm_y * 30;
-        for (int i = 0; i < countx; i++) {
-            if (pv.size() == 6) {
-                pg.emplace_back(PointsGroup(index, ++ipkg, pv.front().y, pv));
-                pv.clear();
-            }
-            int delta_pix_x = i * pix_per_mm_x * 10;
+        int delta_pix_y = int(float(j) * pix_per_mm_y * 30);
+        for (int i = 0; i <= countx; i++) {
+            int delta_pix_x = int(float(i) * pix_per_mm_x * 10);
             cv::Point pp(pp1.x + delta_pix_x, pp1.y + delta_pix_y);
-            /**
-             * Here, you must filter the points outside mask.
-             */
-            if (mask.at<int>(pp) == 0) continue;
-            auto fp = pix2point(pp, intr, depth);
-            pv.emplace_back(fp);
+            if (mask.at<uint8_t>(pp) != 0) {
+                if (pv.size() == 6) {
+                    hasLineData = true;
+                    pg.emplace_back(PointsGroup(index, ++ipkg, pv.front().y, pv));
+                    pg.back().heightp = pp1.y + delta_pix_y;
+                    pv.clear();
+                }
+                auto fp = pix2point(pp, intr, depth);
+                pv.emplace_back(fp);
+            }
         }
         if (!pv.empty()) {
+            hasLineData = true;
             pg.emplace_back(PointsGroup(index, ++ipkg, pv.front().y, pv));
+            pg.back().heightp = pp1.y + delta_pix_y;
             pv.clear();
         }
         for (int i = ipkg; i > 0; i--) {
             pg[pg.size() - i].lpkgs = ipkg;
         }
+        if (hasLineData) {
+            ++index;
+        }
+    }
+    LOG(INFO) << ">> package points : ";
+    for (const auto& package: pg) {
+        std::string outp = "  height (pix) : " + std::to_string(package.heightp) + "\t line points: ";
+        for (const auto& point: package.gp) {
+            outp += "(" + std::to_string(point.x) + ", " + std::to_string(point.y) + ", " + std::to_string(point.z) + "),";
+        }
+        if (outp[outp.length() - 1] == ',') outp = outp.substr(0, outp.length() - 1);
+        LOG(INFO) << outp;
     }
 }
 
