@@ -15,3 +15,5 @@ SERIAL:
 MODEL:
   x_ratio: 0.59
   y_ratio: 0.59
+  fill: false
+  positive_position: true

@@ -135,9 +135,11 @@ cv::Point3f ImageProcessor::pix2point(const cv::Point& p, const struct rs2_intri
     float pixel[2]{float(p.x), float(p.y)};
 
     rs2_deproject_pixel_to_point(point, intr, pixel, depth.get_distance(p.x, p.y));
-    point[0] = point[0] + depth.get_distance(p.x, p.y) * intr->ppx / intr->fx;
-    point[1] = point[1] + depth.get_distance(p.x, p.y) * intr->ppy / intr->fy;
     auto cfg = YamlUtil::getYamlFile();
+    if (cfg["MODEL"]["positive_position"].as<bool>()) {
+        point[0] = point[0] + depth.get_distance(p.x, p.y) * intr->ppx / intr->fx;
+        point[1] = point[1] + depth.get_distance(p.x, p.y) * intr->ppy / intr->fy;
+    }
     return {point[0] * 1000 * cfg["MODEL"]["x_ratio"].as<float>(),
             point[1] * 1000 * cfg["MODEL"]["y_ratio"].as<float>(), point[2] * 1000};
 }
