@@ -60,6 +60,17 @@ void ImageProcessor::calculate(const cv::Rect &rect, const struct rs2_intrinsics
     // ratio: mm / 10 mm
     auto plong = std::abs(pp2.x - pp1.x);
     auto pheight = std::fabs(pp3.y - pp1.y);
+    if (dlong == 0 || dheight == 0) {
+        LOG(INFO) << ">> The following is identified area information:";
+        LOG(INFO) << "-------------------------------";
+        LOG(INFO) << "  width  (pix)  : " << plong;
+        LOG(INFO) << "  height (pix)  : " << pheight;
+        LOG(INFO) << "  width  (mm)   : " << dlong;
+        LOG(INFO) << "  height (mm)   : " << dheight;
+        LOG(INFO) << "-------------------------------";
+        LOG(WARNING) << "Width and height cannot be zero, retry!";
+        return;
+    }
     auto pix_per_mm_x = plong / dlong;
     auto pix_per_mm_y = pheight / dheight;
     int countx = int(dlong / 10);
@@ -124,6 +135,8 @@ cv::Point3f ImageProcessor::pix2point(const cv::Point& p, const struct rs2_intri
     float pixel[2]{float(p.x), float(p.y)};
 
     rs2_deproject_pixel_to_point(point, intr, pixel, depth.get_distance(p.x, p.y));
+    point[0] = point[0] + depth.get_distance(p.x, p.y) * intr->ppx / intr->fx;
+    point[1] = point[1] + depth.get_distance(p.x, p.y) * intr->ppy / intr->fy;
     auto cfg = YamlUtil::getYamlFile();
     return {point[0] * 1000 * cfg["MODEL"]["x_ratio"].as<float>(),
             point[1] * 1000 * cfg["MODEL"]["y_ratio"].as<float>(), point[2] * 1000};
